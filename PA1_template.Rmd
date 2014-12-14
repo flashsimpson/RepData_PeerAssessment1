@@ -6,7 +6,9 @@ output:
 ---
 ```{r, results="hide", echo=FALSE}
 library(dplyr)
+library(plyr)
 library(ggplot2)
+library(reshape2)
 ```
 ## Loading and preprocessing the data
 ```{r}
@@ -26,15 +28,29 @@ stmedian
 ```{r}
 dates<- group_by(data, interval)
 intsum<- summarise(dates, mean=mean(steps, na.rm=T), median=median(steps, na.rm=T))
-plot(intsum$interval, intsum$mean, type="l", main="Mean Steps by Daily Interval", xlab="Daily Interval", ylab="Mean Number of Steps")
+```
+##```{r}
+qplot(data=intsum, x=interval, y=mean,  geom="line",main="Mean Steps by Daily Interval", xlab="Daily Interval", ylab="Mean Number of Steps")
 abline(v=835, col="red")
 intsum$interval[which.max(intsum$mean)]
-```
+##```
+
 ## Imputing missing values
+### Number of missing values
 ```{r}
 Nas<-sum(is.na(data$steps))
 Nas
+```
+### Impute NA value based on mean value for that interval
+```{r}
+impute.mean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
+imp1 <- ddply(data, ~ interval, transform, steps = impute.mean(steps))
 
+hist(imp1$steps, breaks= 50, main="Frequency of Steps Histogram", xlab="Number of Daily Steps")
+stmean1<- mean(imp1$steps, na.rm=T)
+stmean1
+stmedian1<- median(imp1$steps, na.rm=T)
+stmedian1
 ```
 ## Are there differences in activity patterns between weekdays and weekends?
 ```{r}
