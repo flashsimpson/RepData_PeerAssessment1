@@ -54,7 +54,12 @@ stmedian1
 ```
 ## Are there differences in activity patterns between weekdays and weekends?
 ```{r}
-
-
-
+data$date<- as.Date(data$date)
+is.weekend <- function(x) ((as.numeric(x)-2) %% 7) < 2
+data$week<- ifelse(is.weekend(data$date)==TRUE, "weekday", "weekend")
+data$week<- as.factor(data$week)
+par(mfrow = c(2, 1), type="l")
+ plot(dataW$interval, dataW$steps, type="l")
+ plot(dataD$interval, dataD$steps, type="l")
+)
 ```
